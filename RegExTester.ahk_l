@@ -28,7 +28,7 @@ AutoExecute:
     
     Gui,Margin,10,10
     Gui,Font,s9,Lucida Console
-    Gui,Add,Edit,x10 y10 vNeedle w500 hwndRex r3 -WantReturn gInstantChk,% "\b(r\w+[nrst])(?=\s)(.{1,5}\d)?"
+    Gui,Add,Edit,x10 y10 vNeedle w500 hwndRex r3 -WantReturn gInstantChk,% "\b(r\w+[nrst])\b(?:\s+(.{1,5}\d))?"
     Gui,Font
     Gui,add,Button,+Default w90 hp yp x+10 gEval vChkBtn, Evaluate
     Gui,Font,s9 Ca0a0a0,Lucida Console
@@ -352,7 +352,7 @@ RegExEval(){
 
     Options := "O" RegExReplace( Options, "i)[^a-z``]|P|O" ) ")"
     HayStack :=  AllowHaystackReplace ? GetRTF( REdit ) : StartHaystack
-    Needle := RegExReplace( Needle, "^[^\(\)]*\)" ) ; remove user-defined options
+    Needle := RegExReplace( Needle, "^[^\(\)\\]*\)" ) ; remove user-defined options
     RegExNeedle := Options Needle
     
     if (Needle == "")
@@ -381,22 +381,22 @@ RegExEval(){
                 , add += 15 + Match.len()
             else
                 HayStack := StrDel(HayStack, Match.pos(), Match.len())
-        } 
+        }
         else if ( Method = ShowMatch && RegExErrorLevel == 0 ) {
             inserts := [] ;list of insert strings because they could be nested
             inserts[Match.pos()] := "\b0\cf3"
-            inserts[Match.pos()+Match.len()] := "\highlight0"
-            loop % Match.count() {
-                pos1 := Match.pos(A_Index)
+            inserts[Match.pos()+Match.len()] := "\b0\cf3\highlight0"
+            loop % Match.count() { ; loop through all subpatterns, even if they didn't match
+                if !pos1 := Match.pos(A_Index)
+                    continue
                 pos2 := Match.pos(A_Index)+Match.len(A_Index)
                 if !inserts.HasKey(pos2) ; section should end with whatever was before it
                     inserts[pos2] := inserts[PrevIdx(inserts,pos2)]
                 inserts[pos1] .= "\b\cf" A_Index+3
             }
             inserts[Match.pos()] := "\highlight1" SubStr(inserts[Match.pos()], 8)
-            msgbox % "match inserts:`n" lson(inserts)
             for pos, ins in inserts
-                Haystack := StrIns(HayStack, pos+add, ins " "), add += StrLen(ins)
+                Haystack := StrIns(HayStack, pos+add, ins " "), add += StrLen(ins)+1
             add += Match.len()
         }
     }
@@ -444,8 +444,9 @@ StrDel(str, pos, len) {
     return SubStr(str, 1, pos-1) SubStr(str, pos+len)
 }
 
-StrIns(str, insstr, pos) {
-    return SubStr(str, 1, pos) insStr SubStr(str, pos+1)
+;inserts a string in front of the character at the given position
+StrIns(str, pos, insStr) {
+    return SubStr(str, 1, pos-1) insstr SubStr(str, pos)
 }
 
 StrRep(str, pos, len, repStr) {
