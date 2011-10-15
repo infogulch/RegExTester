@@ -11,6 +11,7 @@
 ; prohibited, unless granted in written form by the author of this tool. 
 ; contact SimpleRegExTool [at] itholic [dot] org
 
+;initialization routine
 AutoExecute:
     SetBatchLines,-1
     DetectHiddenWindows, On
@@ -83,7 +84,11 @@ AutoExecute:
     
     ControlMove,,20,197,567,405,ahk_id %REdit%
     ControlMove,,20,197,567,370,ahk_id %REdit2%
+    
+    Gosub, Eval
+Return
 
+;evaluates the regular expression
 Eval:
     ; Select Result Tab
     DllCall("SendMessage", "ptr", hTabs, "ptr", 0x1330, "ptr", 0, "ptr", 0)
@@ -92,19 +97,21 @@ Eval:
     if ( Method == ShowReplace )
         Gui,Font,s9 cBlack, Lucida Console 
     else
-        Gui,Font,s9 ca0a0a0, Lucida Console 
-    GuiControl,Font,Replacement
+        Gui,Font,s9 ca0a0a0, Lucida Console ;greyish color
+    GuiControl,Font,Replacement ;update the font used for the control
     if ( StartHaystack == "" || AllowHaystackReplace == 1 )
         StartHaystack := GetRTF()
     RegExEval()
 Return
 
+;GUI label - processes updates to the input
 InstantChk:
     GuiControlGet, InstantUpdates
     If ( InstantUpdates == 1 )
         Gosub, Eval
 Return
 
+;initialize variables to be used with the RichEdit control
 InitVars:
     ; Determine the proper name of the control
     RichEdit20 := "RichEdit20A"
@@ -119,7 +126,7 @@ InitVars:
         RichEdit20 := "RichEdit20" ( A_IsUnicode ? "W" : "A" )
     */
     
-    ; Set Dflt Values
+    ; Set Default Values
     global CodePage := A_IsUnicode ? 1200 : 0
     
     ; SETTEXTEX Structure
@@ -129,6 +136,7 @@ InitVars:
     NumPut(CodePage, SETTEXTEX, 4, "Uint") ; (uInt)  codepage
 Return
 
+;set the fields to contain the demonstration text
 SetDemoText:
     SRV     := "0.2.1" ; Version
     colSets := 12
@@ -169,7 +177,10 @@ SetDemoText:
     AHK_VERSION := " ( AHK_L - Build " A_AhkVersion  ( A_IsUnicode ? "-Unicode " : "-ANSI " ) " )" 
     RegExTypes := ( ShowMatch   := "Show Match" )
             . "|" ( ShowReplace := "Show Replacement" )
+    Gosub, ColorReset
+Return
 
+;reset the RichEdit colors to their default values
 ColorReset:
     cf0  := "\red255\green255\blue255;" ; cf0  default background
     cf1  := "\red255\green255\blue164;" ; cf1  hilight matchall
@@ -185,7 +196,10 @@ ColorReset:
     cf11 := "\red255\green0\blue255;"   ; cf11 pattern8
     cf12 := "\red128\green128\blue0;"   ; cf12 pattern9
     cf13 := "\red0\green128\blue128;"   ; cf13 pattern10
+    Gosub, InitBaseRTF
+Return
 
+;set the default RTF control settings
 InitBaseRTF:
     stdCol  := "{\colortbl" ; cf1
             . cf0 cf1 cf1 cf2 cf3 cf4 cf5 cf6 cf7 cf8 cf9 cf10 cf11 cf12 cf13
@@ -204,6 +218,7 @@ InitBaseRTF:
     }
 return
 
+;GUI label - processes resizing of the GUI
 GuiSize:
     if ( wh && ww ) {
         GuiControl, Move, ChkBtn, % "x" A_GuiWidth-100
@@ -234,6 +249,7 @@ GuiSize:
     }
 Return
 
+;exit and uninitialization routine
 GuiEscape:
 GuiClose:
 Esc::
@@ -242,6 +258,7 @@ Esc::
     DllCall("FreeLibrary", "Uint", hInstance)
 ExitApp
 
+;process custom RichEdit colors
 CustomColor:
     If ( StrLen( Txt := RegExReplace( GetSelRTF(), "^\s*|\s*$" ) ) != 0 )
     {
@@ -275,6 +292,7 @@ CustomColor:
     }
 Return
 
+;import color settings from a configuration file
 LoadColors:
     FileSelectFile, FileName, 1, , , RegExTesterColorSet (*.col)
     If ( FileName != "" )
@@ -291,6 +309,7 @@ LoadColors:
     }
 Return
 
+;export color settings from variables
 SaveColors:
     FileSelectFile, FileName, s16, RegExTesterColorSet.col, , RegExTesterColorSet (*.col)
     If ( FileName != "" )
@@ -327,6 +346,7 @@ GetColor( c=0, hGui=0) { ; added in v0.1.7
     return (errorlevel <> 0) || (nRC = 0) ? -1 : NumGet(CHOOSECOLOR, 12) 
 }
 
+;process evaluation of a regular expression
 RegExEval(){
     Global pid, Replacement, StartHaystack, Needle, Method, ShowMatch, ShowReplace, ShowMatch
     , ShowMatch, ReplaceCount, StartPos, Options, ShowReplacedText, AllowHaystackReplace
@@ -338,12 +358,12 @@ RegExEval(){
     Needle := RegExReplace( Needle, "^[^\)]*\)" ) ; remove user-defined options
     RegExNeedle := Options Needle
     
-    if !StrLen( Needle )
+    if (Needle = "")
         return
     
     p := 0
     matches := 0
-    while p := RegExMatch( HayStack, RegExNeedle, Match, p ? p+add : StartPos )
+    while p := RegExMatch( HayStack, RegExNeedle, Match, p ? p+add : StartPos ) ;loop through each match of the regular expression
     {
         if (A_Index == 1)
             if (RegExErrorLevel := ErrorLevel)
@@ -390,6 +410,7 @@ RegExEval(){
     SetRTF( HayStack, REdit )
 }
 
+;find the highest index of an object from a given limit
 PrevIdx(obj, i) {
     i := Floor(Abs(i))
     while --i 
@@ -397,9 +418,11 @@ PrevIdx(obj, i) {
             return i
 }
 
+;process the 
 FormatReplacement(match, replacement) {
     for t, r in { "r": "`r", "n": "`n", "t": "`t" }
-        Replacement := RegExReplace( Replacement, "((?<![``|\\])(?:````|\\\\)*)[``|\\]" t, "$1" r )
+        Replacement := RegExReplace( Replacement, "((?<![``|\\])(?:````|\\\\)*)[``|\\]" t, "$1" r ) ;replace escaped characters with their literal equivelants
+    ;loop through each tag
     while p := RegExMatch(replacement, "iO)(?<!\$)(?<pre>(?:\$\$)*)(?<all>\$(?<case>[ult]?)(?|(?<subp>\d)|\{(?<subp>\w{32})\}))", r, p ? p + add + r.len("pre") + 1 : 1)
     {
         replacement := StrRep(replacement, r.pos("all"), r.len("all"), FixCase(r.case, match.value(r.subp)))
@@ -408,6 +431,7 @@ FormatReplacement(match, replacement) {
     return replacement
 }
 
+;convert a given string into a given case
 FixCase(case, str) {
     if (case = "u")
         StringUpper, str, str
@@ -430,6 +454,7 @@ StrRep(str, pos, len, repStr) {
     return StrIns(StrDel(str, pos, len), repStr, pos)
 }
 
+;obtain the current selection in the RichEdit control
 GetSelRTF( re ) { ; added in v 0.1.8
     VarSetCapacity(t, 8, 0)
     SendMessage(re, 0x434, 0, &t)
@@ -445,6 +470,7 @@ GetSelRTF( re ) { ; added in v 0.1.8
     return A_IsUnicode ? StrGet( &b, tbl, "CP0") : b
 }
 
+;obtain Rich Text Format from the RichEdit control
 GetRTF( re ) {
     ; Get Haystack
     VarSetCapacity(t1, 8, 0)
@@ -471,7 +497,7 @@ SendMessage( hwnd, msg, wParam = 0, lParam = 0 ) {
 SetRTF( Haystack, re ){
     Global preRTF, postRTF
 
-    ; Do any neccessary translations
+    ; Do any neccessary newline translations
     Haystack := preRTF RegExReplace( Haystack, "\r\n|\r|\n", "\par`n" ) postRTF
     
     if ( A_IsUnicode )
