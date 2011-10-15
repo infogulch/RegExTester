@@ -59,7 +59,7 @@ AutoExecute:
                                                . "This might result in a nonworking script. Use carefully!"
   Gui,Tab
   Gui,Add,StatusBar,+0x100
-  Gui, Show, Hide, % "dR's Simple RegExTester v" SRV AHK_VERSION
+  Gui, Show, Hide, % "Simple RegExTester v" SRV AHK_VERSION
   Gui,+LastFound +Resize +MinSize
   
   ; Load RichEdit2 DLL
@@ -120,8 +120,8 @@ InitVars:
   */
 
   ; Set Dflt Values
-  _Ptr     := A_PtrSize ? "Ptr" : "UInt"
-  _Str     := ( InStr( A_AhkVersion, "L" ) ? ( A_IsUnicode ? "W" : "A" ) : "" ) "Str"
+  _Ptr     := "Ptr"
+  _Str     := ( A_IsUnicode ? "W" : "A" ) "Str"
   CodePage := A_IsUnicode ? 1200 : 0
   
   ; SETTEXTEX Structure 
@@ -169,13 +169,9 @@ SetDemoText:
     This is \strike replaced text\strike0\b\cf4 how it would look like\b0\cf3 , when a re
     placement took place.
   )
-  AHK_VERSION := " ( AHK" ( InStr( A_AhkVersion, "L" ) 
-                 ? "_L - Build " A_AhkVersion  ( A_IsUnicode ? "-Unicode " : "-ANSI " ) 
-                 : " Basic " A_AhkVersion ) 
-               . " )" 
-  RegExTypes :=   ( ( ShowMatchPattern  := "Show Match Pattern" )
-              . "|" ( ShowMatchAll      := "Show Match All" )
-              . "|" ( ShowReplace       := "Show Replacement" ) )
+  AHK_VERSION := " ( AHK_L - Build " A_AhkVersion  ( A_IsUnicode ? "-Unicode " : "-ANSI " ) " )" 
+  RegExTypes := ( ShowMatch   := "Show Match" )
+          . "|" ( ShowReplace := "Show Replacement"   )
 
 ColorReset:
   cf0  := "\red255\green255\blue255;" ; cf0  default background
@@ -212,41 +208,41 @@ InitBaseRTF:
 return
 
 GuiSize:
-  if ( wh && ww ) {
-    GuiControl, Move, ChkBtn, % "x" A_GuiWidth-100
-    GuiControl, Move, Tabs, % "w" A_GuiWidth-tabsOw " h" A_GuiHeight-tabsOH
-    GuiControl, Move, Replacement, % "w" A_GuiWidth-20
-    ControlGetPos, TabsX, TabsY, TabsW, TabsH,, ahk_id %hTabs%
-    GuiControl, Move, rPic, % "w" TabsW-30 " h" TabsH-10
-    ControlGetPos, hPosX, hPosY, hPosW, hPosH,, ahk_id %hWnd%
-    ControlMove,,hPosX,hPosY,hPosW,hPosH-5,ahk_id %REdit%
-    GuiControl, Move, rRO, % "w" TabsW-30 " h" TabsH-50
-    ControlGetPos, hPosX, hPosY, hPosW, hPosH,, ahk_id %hRO%
-    ControlMove,,hPosX,hPosY,hPosW,hPosH-5,ahk_id %REdit2%
-    GuiControl, Move, Needle, % "x10 y10 w" A_GuiWidth-120
-    GuiControl, Move, Group2, % "w" A_GuiWidth-230
-    GuiControl, Move, CustomColorBtn, % "y" TabsY+hPosH-20 " w" TabsW-345
-    GuiControl, Move, ColorResetBtn, % "y" TabsY+hPosH-20 " x" TabsW-325
-    GuiControl, Move, SaveColorsBtn, % "y" TabsY+hPosH-20 " x" TabsW-220
-    GuiControl, Move, LoadColorsBtn, % "y" TabsY+hPosH-20 " x" TabsW-115
-    GuiControl, Move, Options, % " w" A_GuiWidth-545
-    Gui,+LastFound
-    WinSet, Redraw
-  } else {
-    ww := A_GuiWidth, wh := A_GuiHeight
-    ControlGetPos, TabsX, TabsY, TabsW, TabsH,, ahk_id %hTabs%
-    tabsOW := ww-TabsW, tabsOH := wh-TabsH
-    GuiControl, Move, rPic, % "w" TabsW-30 " h" TabsH-10
-    GuiControl, Move, rRO, % "w" TabsW-30 " h" TabsH-50
-  }
+    if ( wh && ww ) {
+        GuiControl, Move, ChkBtn, % "x" A_GuiWidth-100
+        GuiControl, Move, Tabs, % "w" A_GuiWidth-tabsOw " h" A_GuiHeight-tabsOH
+        GuiControl, Move, Replacement, % "w" A_GuiWidth-20
+        ControlGetPos, TabsX, TabsY, TabsW, TabsH,, ahk_id %hTabs%
+        GuiControl, Move, rPic, % "w" TabsW-30 " h" TabsH-10
+        ControlGetPos, hPosX, hPosY, hPosW, hPosH,, ahk_id %hWnd%
+        ControlMove,,hPosX,hPosY,hPosW,hPosH-5,ahk_id %REdit%
+        GuiControl, Move, rRO, % "w" TabsW-30 " h" TabsH-50
+        ControlGetPos, hPosX, hPosY, hPosW, hPosH,, ahk_id %hRO%
+        ControlMove,,hPosX,hPosY,hPosW,hPosH-5,ahk_id %REdit2%
+        GuiControl, Move, Needle, % "x10 y10 w" A_GuiWidth-120
+        GuiControl, Move, Group2, % "w" A_GuiWidth-230
+        GuiControl, Move, CustomColorBtn, % "y" TabsY+hPosH-20 " w" TabsW-345
+        GuiControl, Move, ColorResetBtn, % "y" TabsY+hPosH-20 " x" TabsW-325
+        GuiControl, Move, SaveColorsBtn, % "y" TabsY+hPosH-20 " x" TabsW-220
+        GuiControl, Move, LoadColorsBtn, % "y" TabsY+hPosH-20 " x" TabsW-115
+        GuiControl, Move, Options, % " w" A_GuiWidth-545
+        Gui,+LastFound
+        WinSet, Redraw
+    } else {
+        ww := A_GuiWidth, wh := A_GuiHeight
+        ControlGetPos, TabsX, TabsY, TabsW, TabsH,, ahk_id %hTabs%
+        tabsOW := ww-TabsW, tabsOH := wh-TabsH
+        GuiControl, Move, rPic, % "w" TabsW-30 " h" TabsH-10
+        GuiControl, Move, rRO, % "w" TabsW-30 " h" TabsH-50
+    }
 Return
 
 GuiEscape:
 GuiClose:
 Esc::
-  DllCall("DestroyWindow", "Uint", REdit)
-  DllCall("DestroyWindow", "Uint", REdit2)
-  DllCall("FreeLibrary", "Uint", hInstance)
+    DllCall("DestroyWindow", "Uint", REdit)
+    DllCall("DestroyWindow", "Uint", REdit2)
+    DllCall("FreeLibrary", "Uint", hInstance)
 ExitApp
 
 CustomColor:
@@ -332,97 +328,142 @@ GetColor( c=0, hGui=0) { ; added in v0.1.7
     return (errorlevel <> 0) || (nRC = 0) ? -1 : NumGet(CHOOSECOLOR, 12) 
 }
 
-RegExEval(){ ; added in v0.1.7
-  Global pid, Replacement, StartHaystack, Needle, Method, ShowMatchAll, ShowReplace, ShowMatch
-         , ShowMatchPattern, ReplaceCount, StartPos, Options, ShowReplacedText, AllowHaystackReplace
-  
-  ; from ListGlobalVars() by Lexikos - http://www.autohotkey.com/forum/post-165430.html#165430 
-  static hwndEdit, pSFW, pSW, bkpSFW, bkpSW
-  
-  Options := RegExReplace( Options, "i)([^a-z``]|P)" ), Options := Options ( Options != "" ? ")" : "" ) 
-  , HayStack :=  AllowHaystackReplace ? GetRTF() : StartHaystack
-  , Needle := RegExReplace( Needle, "^[\w``\s]*\)" ), RegExNeedle := Options Needle
+RegExEval(){
+    Global pid, Replacement, StartHaystack, Needle, Method, ShowMatch, ShowReplace, ShowMatch
+    , ShowMatch, ReplaceCount, StartPos, Options, ShowReplacedText, AllowHaystackReplace
 
-  if ( StrLen( Needle ) ) {
-    test := RegExMatch( HayStack, RegExNeedle, Match, StartPos ), RegExErrorLevel := ErrorLevel, p := 0
+    static hwndEdit, pSFW, pSW, bkpSFW, bkpSW
+
+    Options := "O" RegExReplace( Options, "i)[^a-z``]|P|O" ) ")"
+    HayStack :=  AllowHaystackReplace ? GetRTF() : StartHaystack
+    Needle := RegExReplace( Needle, "^[^\)]*\)" ) ; remove user-defined options
+    RegExNeedle := Options Needle
+    
+    if !StrLen( Needle )
+        return
+    
+    p := 0
+    matches := 0
+    while p := RegExMatch( HayStack, RegExNeedle, Match, p ? p+add : StartPos )
+    {
+        if (A_Index == 1)
+            if (RegExErrorLevel := ErrorLevel)
+                break
+        
+        matches++
+        add := 0
+        
+        if (Method == ShowReplace && RegExErrorLevel == 0 && (ReplaceCount < 0 || ReplaceCount <= matches) ) {
+            replace := FormatReplacement(match, replacement)
+            
+            ;append replacement behind match
+            HayStack := StrIns(HayStack, Match.pos(0) + Match.len(0), replace) 
+            add += StrLen(replace)
+            
+            ; strike-out/remove replaced text
+            if ShowReplacedText
+                HayStack := StrRep(HayStack, Match.pos(0), Match.len(0), "\strike " Match.value(0) "\strike0 ")
+                , add += 15 + Match.len(0)
+            else
+                HayStack := StrDel(HayStack, Match.pos(0), Match.len(0))
+        } 
+        else if ( Method == ShowMatch && RegExErrorLevel == 0 ) {
+            add += Match.len(0)
+            inserts := [] ;list of insert strings because they could be nested
+            inserts[Match.pos(0)] := "\b0\cf3 "
+            inserts[Match.pos(0)+Match.len(0)] := "\highlight0 "
+            loop % Match.count() {
+                pos1 := Match.pos(A_Index)
+                pos2 := Match.pos(A_Index)+Match.len(A_Index)
+                if !inserts.HasKey(pos2) ; section should end with whatever was before it
+                    inserts[pos2] := inserts[PrevIdx(inserts,pos2)]
+                inserts[pos1] .= "\b\cf" A_Index+3 " "
+            }
+            inserts[Match.pos(0)] := "\highlight1 " SubStr(inserts[Match.pos(0)], 8)
+            for pos, ins in inserts
+                Haystack := StrIns(HayStack, pos+add, ins), add += StrLen(ins)
+        }
+    }
+    if (RegExErrorLevel == "")
+        RegExErrorLevel := ErrorLevel
     SB_SetText( "RegEx: " ( RegExErrorLevel != 0 ? RegExErrorLevel : "OK." ) )
     
-    if ( test && Method == ShowMatchAll && RegExErrorLevel == 0 )
-      while ( p := RegExMatch( HayStack, RegExNeedle, CustomMatch, p == 0 ? StartPos : p + StrLen(CustomMatch)+15 ) )
-        if ( StrLen(CustomMatch) = StrLen(HayStack) || StrLen(CustomMatch) = 0 )
-          break
-        else
-          HayStack := RegExReplace(HayStack, "\Q" CustomMatch "\E", "\b\cf5 " CustomMatch "\b0\cf3 " , o, 1, p)
-    else if ( test && Method == ShowReplace && RegExErrorLevel == 0 ) {
-      Chars := "nrt", Chars1 := "`n", Chars2 := "`r", Chars3 := "`t", rc := 0, r := true, p2 := StartPos
-      Loop,Parse,Chars
-        Replacement := RegExReplace( Replacement, "(``|\\)" A_loopField, Chars%A_Index% )
-      While ( ( p1 := RegExMatch( HayStack, RegExNeedle, CustomMatch, p2 ) ) && R )
-        nr := ( ShowReplacedText == true ?  "\strike " CustomMatch "\strike0" : "" ) "\b\cf4 " Replacement 
-        . "\b0\cf3 ", rc += 1, p2 := p1 + StrLen( nr ), HayStack := RegExReplace( HayStack, RegExNeedle, nr
-        , o, 1, p1 ), R := ( ReplaceCount != -1 ) ? ! ( ReplaceCount > 0 && rc >= ReplaceCount ) : 1
-    } else if ( Method == ShowMatchPattern && RegExErrorLevel == 0 ) {
-      RegExMatch( HayStack, RegExNeedle, CustomMatch, StartPos )
-      ; from ListGlobalVars() by Lexikos - http://www.autohotkey.com/forum/post-165430.html#165430
-      ; with a minor fix provided by lexikos to work with ahk_l
-      if ( !hwndEdit ) {
-          ControlGet, hwndEdit, Hwnd,, Edit1, ahk_class AutoHotkey ahk_pid %pid%
-          hmod := DllCall("GetModuleHandle", "str", "user32.dll"), pSFW := DllCall("GetProcAddress"
-          , "uint", hmod, "str", "SetForegroundWindow"), pSW := DllCall("GetProcAddress", "uint"
-          , hmod, InStr( A_AhkVersion, "L" ) ? "astr" : "str" , "ShowWindow"), DllCall("VirtualProtect"
-          , "uint", pSFW, "uint", 8, "uint" , 0x40, "uint*", 0), DllCall("VirtualProtect", "uint"
-          , pSW, "uint", 8, "uint", 0x40, "uint*", 0), bkpSFW := NumGet(pSFW+0, 0, "int64")
-          , bkpSW := NumGet(pSW+0, 0, "int64")
-      }
-      NumPut(0x0004C200000001B8, pSFW+0, 0, "int64"), NumPut(0x0008C200000001B8, pSW+0, 0, "int64")
-      ListVars
-      NumPut(bkpSFW, pSFW+0, 0, "int64"), NumPut(bkpSW, pSW+0, 0, "int64")
-      ControlGetText, _text,, ahk_id %hwndEdit%
-      lst := "", RegExMatch(_text, "sm)(?<=^Local Variables for RegExEval\(\)`r`n-{50}`r`n).*?(?=Global Variables)", _text) 
-      Loop,Parse,_text,`n,`r
-        If ( RegExMatch( A_LoopField, "^CustomMatch([^:]*)?" ) )
-          lst .= ( StrLen(Lst) != 0 ? "`n" : "" ) RegExReplace( A_LoopField, "\[\d+ of \d+].*" )
-      _text := "", n:=1
-      Sort,lst,U
-      Loop,Parse,lst,`n
-        if ( RegExMatch( A_LoopField, "^CustomMatch\d+" ) &&  ( _n := RegExReplace(A_LoopField,"CustomMatch") ) > n )
-          n := _n, _n := ""
-      HayStack := RegExReplace( HayStack, "\Q" CustomMatch "\E", "\highlight1 " CustomMatch "\highlight0 " )
-      RegExMatch( HayStack, "P" Options ( Options != "" ? "" : ")" ) Needle, CustomMatch, StartPos )
-      Loop, % n
-        idx := n+1-A_Index, HayStack := RegExReplace( HayStack, "\Q" CustomMatch%Idx% "\E"
-        , "\b\cf" idx+4 " " CustomMatch%Idx% "\b0\cf3 ", o, 1, CustomMatchPos%Idx% )
-    }
-  }
+    SetRTF( HayStack )
+}
 
-  SetRTF( HayStack )
+PrevIdx(obj, i) {
+    i := Floor(Abs(i))
+    while --i 
+        if obj.HasKey(i)
+            return i
+}
+
+FormatReplacement(match, replacement) {
+    for t, r in { "r": "`r", "n": "`n", "t": "`t" }
+        Replacement := RegExReplace( Replacement, "((?<![``|\\])(?:````|\\\\)*)[``|\\]" t, "$1" r )
+    while p := RegExMatch(replacement, "iO)(?<!\$)(?<pre>(?:\$\$)*)(?<all>\$(?<case>[ult]?)(?|(?<subp>\d)|\{(?<subp>\w{32})\}))", r, p ? p + add + r.len("pre") + 1 : 1)
+    {
+        replacement := StrRep(replacement, r.pos("all"), r.len("all"), FixCase(r.case, match.value(r.subp)))
+        add := match.len(r.subp) - r.len("all")
+    }
+    return replacement
+}
+
+FixCase(case, str) {
+    if (case = "u")
+        StringUpper, str, str
+    else if (case = "l")
+        StringLower, str, str
+    else if (case = "t")
+        StringUpper, str, str, T
+    return str
+}
+
+StrDel(str, pos, len) {
+    return SubStr(str, 1, pos-1) SubStr(str, pos+len)
+}
+
+StrIns(str, insstr, pos) {
+    return SubStr(str, 1, pos) insStr SubStr(str, pos+1)
+}
+
+StrRep(str, pos, len, repStr) {
+    return StrIns(StrDel(str, pos, len), repStr, pos)
 }
 
 GetSelRTF() { ; added in v 0.1.8
-  Global REdit2, _Ptr
-  Static $
-  if ( ! $ && InStr( A_AhkVersion, "L" ) )
-      $ := "StrGet"
-  VarSetCapacity(t, 8, 0), DllCall("SendMessage", _Ptr, REdit2, _Ptr, 0x434, _Ptr, "0", _Ptr, &t)
-  , VarSetCapacity(t, -1), tbl := NumGet(t, 4, "Int") - NumGet(t, 0, "Int")
-  If (tbl < 1 )
-    Return
-  VarSetCapacity(b, tbl, 0), DllCall("SendMessage", _Ptr, REdit2, _Ptr, 0x43E, _Ptr, "0", _Ptr, &b)
-  , VarSetCapacity(b, -1)
-  return ( A_IsUnicode ) ? %$%( &b, tbl, "CP0") : b
+    Global REdit2, _Ptr
+    VarSetCapacity(t, 8, 0)
+    DllCall("SendMessage", _Ptr, REdit2, _Ptr, 0x434, _Ptr, "0", _Ptr, &t)
+    VarSetCapacity(t, -1)
+    tbl := NumGet(t, 4, "Int") - NumGet(t, 0, "Int")
+    If (tbl < 1 )
+        Return
+    VarSetCapacity(b, tbl, 0)
+    DllCall("SendMessage", _Ptr, REdit2, _Ptr, 0x43E, _Ptr, "0", _Ptr, &b)
+    VarSetCapacity(b, -1)
+    return A_IsUnicode ? StrGet( &b, tbl, "CP0") : b
 }
 
 GetRTF( re = 1 ){ ; added in v0.1.7 / changed for multiple Ctrls in v0.1.8
-  Global CodePage, REdit, REdit2
-  
-  ; Get Haystack
-  VarSetCapacity(t1, 8, 0), t2 := CodePage, VarSetCapacity(t3, 20, 0), NumPut(0, t1, 0), NumPut(t2, t1, 4)
-  If (ts := DllCall("SendMessage", "UInt", REdit, "UInt", 0x45F, "UInt", &t1, "UInt", "0")) {
-    ts+=1,ts*=A_IsUnicode ? 2 : 1,NumPut(ts, t3, 0, "Int"), NumPut(t2, t3, 8, "Int"), VarSetCapacity(Haystack, ts + 1, 0)
-    DllCall("SendMessage", "UInt", re = 2 ? REdit2 : Redit , "UInt", 0x45E, "UInt", &t3, "UInt", &Haystack)
-    VarSetCapacity(Haystack, -1)
-  }
-  return Haystack
+    Global CodePage, REdit, REdit2
+
+    ; Get Haystack
+    VarSetCapacity(t1, 8, 0)
+    t2 := CodePage
+    VarSetCapacity(t3, 20, 0)
+    NumPut(0, t1, 0)
+    NumPut(t2, t1, 4)
+    If (ts := DllCall("SendMessage", "UInt", REdit, "UInt", 0x45F, "UInt", &t1, "UInt", "0")) {
+        ts+=1
+        ts*=A_IsUnicode ? 2 : 1
+        NumPut(ts, t3, 0, "Int")
+        NumPut(t2, t3, 8, "Int")
+        VarSetCapacity(Haystack, ts + 1, 0)
+        DllCall("SendMessage", "UInt", re = 2 ? REdit2 : Redit , "UInt", 0x45E, "UInt", &t3, "UInt", &Haystack)
+        VarSetCapacity(Haystack, -1)
+    }
+    return Haystack
 }
 
 SetRTF( Haystack, re = 1 ){ ; added in v0.1.7 / changed for multiple Ctrls in v0.1.8
@@ -439,10 +480,6 @@ SetRTF( Haystack, re = 1 ){ ; added in v0.1.7 / changed for multiple Ctrls in v0
 }
 
 StrPutVar(string, ByRef var, encoding){ ; added in v0.1.6
-    static $
-    if ( ! $ && InStr( A_AhkVersion, "L" ) )
-      $ := "StrPut"
-    VarSetCapacity( var, %$%(string, encoding)
-        * ((encoding="utf-16"||encoding="cp1200") ? 2 : 1) )
-    return %$%(string, &var, encoding)
+    VarSetCapacity( var, StrPut(string, encoding) * ((encoding="utf-16"||encoding="cp1200") ? 2 : 1) )
+    return StrPut(string, &var, encoding)
 }
