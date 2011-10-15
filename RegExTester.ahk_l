@@ -12,199 +12,196 @@
 ; contact SimpleRegExTool [at] itholic [dot] org
 
 AutoExecute:
-  SetBatchLines,-1
-  DetectHiddenWindows, On
-  Process, Exist
-  pid := ErrorLevel
-
-  Gosub, SetDemoText
-  Gosub, InitVars
-  
-  Gui,Margin,10,10
-  Gui,Font,s9,Lucida Console
-  Gui,Add,Edit,x10 y10 vNeedle w500 hwndRex r3 -WantReturn gInstantChk,% "\b(r\w+[nrst])(?=\s)(.{1,5}\d)?"
-  Gui,Font
-  Gui,add,Button,+Default w90 hp yp x+10 gEval vChkBtn, Evaluate
-  Gui,Font,s9 Ca0a0a0,Lucida Console
-  Gui,Add,Edit,x10 y+10 w600 vReplacement r2, Replacement
-  Gui,Font
-  Gui,Add,GroupBox,w200 r1, Regular Expression Method
-  Gui,Add,DDL,w180 xp+10 yp+20 vMethod gEval,% RegExReplace( RegExTypes, "\|", "||", any, 1 )
-  Gui,Add,GroupBox,w390 r1 yp-20 x220 vGroup2, Regular Expression Oprions
-  Gui,Add,Text,xp+20 yp+20 w28, Start
-  Gui,Font,s9 Bold cBlack,Lucida Console
-  Gui,Add,Edit, x+0 yp-3 hp+5 w40 vStartPos gInstantChk, 1
-  Gui,Font
-  Gui,Add,Text,x+10 yp+3 w72, ReplaceCount
-  Gui,Font,s9 Bold cBlack,Lucida Console
-  Gui,Add,Edit, x+0 yp-3 hp+5 w40 vReplaceCount gInstantChk, -1
-  Gui,Font
-  Gui,Add,Text,x+10 yp+3 w78, PCRE Options
-  Gui,Font,s9 cBlack,Lucida Console
-  Gui,Add,Edit, x+0 yp-3 hp+5 w75 vOptions gInstantChk, % "i"
-  Gui,Font
-  Gui,Add,Tab2,w600 x10 y+20 h420 +0x2C2 vTabs hwndhTabs, RegEx|Colors|Advanced
-  Gui,Tab,RegEx
-  Gui, Add, Picture, x+2 y+2 vrPic HwndhWnd
-  Gui,Tab,Colors
-  Gui, Add, Picture, x+2 y+2 w30 h365 vrRO HwndhRO
-  Gui, Add, Button, h30 w255 gCustomColor vCustomColorBtn, Customize that color of your selected text!
-  Gui, Add, Button, h30 w100 Disabled yp x+5 vColorResetBtn gColorReset, Reset colors!
-  Gui, Add, Button, h30 w100 Disabled yp x+5 vSaveColorsBtn gSaveColors, Save colors
-  Gui, Add, Button, h30 w100 yp x+5 vLoadColorsBtn gLoadColors, Load colors
-  Gui,Tab,Advanced
-  Gui, Add, CheckBox, x+10 y+10 Checked vShowReplacedText, Show the replaced text as striked through
-  Gui, Add, CheckBox, xp y+10 Checked vAllowHaystackReplace, Allow RegExReplace to update the Haystack
-  Gui, Add, CheckBox, xp y+10 vInstantUpdates, % "Update instantly the Haystack with your Regex`n"
-                                               . "This might result in a nonworking script. Use carefully!"
-  Gui,Tab
-  Gui,Add,StatusBar,+0x100
-  Gui, Show, Hide, % "Simple RegExTester v" SRV AHK_VERSION
-  Gui,+LastFound +Resize +MinSize
-  
-  ; Load RichEdit2 DLL
-  hInstance := DllCall("LoadLibrary", _Str, "riched20.dll")
-  
-  ControlStyle := 0x50000000 | 0x200000 | 0x4
-  
-  ; Create Control
-  REdit := DllCall("CreateWindowEx", _Ptr, 0x200, _Str, RichEdit20, _Str, RichEdit20, _Ptr, ControlStyle ; 0x549371C4
-                  ,"int", 10, "int", 40, "int", 530, "int", 410, _Ptr, hWnd, _Ptr,  0, _Ptr, hInstance, _Ptr, 0 )
-  REdit2 := DllCall("CreateWindowEx", _Ptr, 0x200, _Str, RichEdit20, _Str, RichEdit20, _Ptr, ControlStyle ; 0x549371C4
-                  ,"int", 10, "int", 40, "int", 530, "int", 410, _Ptr, hRO, _Ptr, 0, _Ptr, hInstance, _Ptr, 0 )
-  ; EM_LIMITTEXT Message
-  DllCall("SendMessage", _Ptr, REdit, _Ptr, 0x435, _Ptr, 0, _Ptr, 0x7fffffff )
-  DllCall("SendMessage", _Ptr, REdit2, _Ptr, 0x435, _Ptr, 0, _Ptr, 0x7fffffff )
-  ; EM_SETTARGETDEVICE - wordwrap
-  DllCall("SendMessage", _Ptr, REdit, _Ptr, 0x448, _Ptr, 0, _Ptr, 0)
-  DllCall("SendMessage", _Ptr, REdit2, _Ptr, 0x448, _Ptr, 0, _Ptr, 0)
-  SetRTF( HayStack )
-  SetRTF( ColorChooserText, 2 )
-
-  ControlMove,,20,197,567,405,ahk_id %REdit%
-  ControlMove,,20,197,567,370,ahk_id %REdit2%
+    SetBatchLines,-1
+    DetectHiddenWindows, On
+    Process, Exist
+    pid := ErrorLevel
+    
+    Gosub, SetDemoText
+    Gosub, InitVars
+    
+    Gui,Margin,10,10
+    Gui,Font,s9,Lucida Console
+    Gui,Add,Edit,x10 y10 vNeedle w500 hwndRex r3 -WantReturn gInstantChk,% "\b(r\w+[nrst])(?=\s)(.{1,5}\d)?"
+    Gui,Font
+    Gui,add,Button,+Default w90 hp yp x+10 gEval vChkBtn, Evaluate
+    Gui,Font,s9 Ca0a0a0,Lucida Console
+    Gui,Add,Edit,x10 y+10 w600 vReplacement r2, Replacement
+    Gui,Font
+    Gui,Add,GroupBox,w200 r1, Regular Expression Method
+    Gui,Add,DDL,w180 xp+10 yp+20 vMethod gEval,% RegExReplace( RegExTypes, "\|", "||", any, 1 )
+    Gui,Add,GroupBox,w390 r1 yp-20 x220 vGroup2, Regular Expression Oprions
+    Gui,Add,Text,xp+20 yp+20 w28, Start
+    Gui,Font,s9 Bold cBlack,Lucida Console
+    Gui,Add,Edit, x+0 yp-3 hp+5 w40 vStartPos gInstantChk, 1
+    Gui,Font
+    Gui,Add,Text,x+10 yp+3 w72, ReplaceCount
+    Gui,Font,s9 Bold cBlack,Lucida Console
+    Gui,Add,Edit, x+0 yp-3 hp+5 w40 vReplaceCount gInstantChk, -1
+    Gui,Font
+    Gui,Add,Text,x+10 yp+3 w78, PCRE Options
+    Gui,Font,s9 cBlack,Lucida Console
+    Gui,Add,Edit, x+0 yp-3 hp+5 w75 vOptions gInstantChk, % "i"
+    Gui,Font
+    Gui,Add,Tab2,w600 x10 y+20 h420 +0x2C2 vTabs hwndhTabs, RegEx|Colors|Advanced
+    Gui,Tab,RegEx
+    Gui, Add, Picture, x+2 y+2 vrPic HwndhWnd
+    Gui,Tab,Colors
+    Gui, Add, Picture, x+2 y+2 w30 h365 vrRO HwndhRO
+    Gui, Add, Button, h30 w255 gCustomColor vCustomColorBtn, Customize that color of your selected text!
+    Gui, Add, Button, h30 w100 Disabled yp x+5 vColorResetBtn gColorReset, Reset colors!
+    Gui, Add, Button, h30 w100 Disabled yp x+5 vSaveColorsBtn gSaveColors, Save colors
+    Gui, Add, Button, h30 w100 yp x+5 vLoadColorsBtn gLoadColors, Load colors
+    Gui,Tab,Advanced
+    Gui, Add, CheckBox, x+10 y+10 Checked vShowReplacedText, Show the replaced text as striked through
+    Gui, Add, CheckBox, xp y+10 Checked vAllowHaystackReplace, Allow RegExReplace to update the Haystack
+    Gui, Add, CheckBox, xp y+10 vInstantUpdates, % "Update instantly the Haystack with your Regex`n"
+                                                . "This might result in a nonworking script. Use carefully!"
+    Gui,Tab
+    Gui,Add,StatusBar,+0x100
+    Gui, Show, Hide, % "Simple RegExTester v" SRV AHK_VERSION
+    Gui,+LastFound +Resize +MinSize
+    
+    ; Load RichEdit2 DLL
+    hInstance := DllCall("LoadLibrary", "str", "riched20.dll")
+    
+    ControlStyle := 0x50000000 | 0x200000 | 0x4
+    
+    ; Create Control
+    global REdit := DllCall("CreateWindowEx", "ptr", 0x200, "str", RichEdit20, "str", RichEdit20, "ptr", ControlStyle ; 0x549371C4
+                           ,"int", 10, "int", 40, "int", 530, "int", 410, "ptr", hWnd, "ptr",  0, "ptr", hInstance, "ptr", 0 )
+    global REdit2 := DllCall("CreateWindowEx", "ptr", 0x200, "str", RichEdit20, "str", RichEdit20, "ptr", ControlStyle ; 0x549371C4
+                            ,"int", 10, "int", 40, "int", 530, "int", 410, "ptr", hRO, "ptr", 0, "ptr", hInstance, "ptr", 0 )
+    ; EM_LIMITTEXT Message
+    DllCall("SendMessage", "ptr", REdit, "ptr", 0x435, "ptr", 0, "ptr", 0x7fffffff )
+    DllCall("SendMessage", "ptr", REdit2, "ptr", 0x435, "ptr", 0, "ptr", 0x7fffffff )
+    ; EM_SETTARGETDEVICE - wordwrap
+    DllCall("SendMessage", "ptr", REdit, "ptr", 0x448, "ptr", 0, "ptr", 0)
+    DllCall("SendMessage", "ptr", REdit2, "ptr", 0x448, "ptr", 0, "ptr", 0)
+    SetRTF( HayStack, REdit )
+    SetRTF( ColorChooserText, REdit2 )
+    
+    ControlMove,,20,197,567,405,ahk_id %REdit%
+    ControlMove,,20,197,567,370,ahk_id %REdit2%
 
 Eval:
-  ; Select Result Tab
-  DllCall("SendMessage", _Ptr, hTabs, _Ptr, 0x1330, _Ptr, 0, _Ptr, 0)
-  Gui,Submit,NoHide
-  
-  if ( Method == ShowReplace )
-    Gui,Font,s9 cBlack, Lucida Console 
-  else
-    Gui,Font,s9 ca0a0a0, Lucida Console 
-  GuiControl,Font,Replacement
-  if ( StartHaystack == "" || AllowHaystackReplace == 1 )
-    StartHaystack := GetRTF()
-  RegExEval()
+    ; Select Result Tab
+    DllCall("SendMessage", "ptr", hTabs, "ptr", 0x1330, "ptr", 0, "ptr", 0)
+    Gui,Submit,NoHide
+    
+    if ( Method == ShowReplace )
+        Gui,Font,s9 cBlack, Lucida Console 
+    else
+        Gui,Font,s9 ca0a0a0, Lucida Console 
+    GuiControl,Font,Replacement
+    if ( StartHaystack == "" || AllowHaystackReplace == 1 )
+        StartHaystack := GetRTF()
+    RegExEval()
 Return
 
 InstantChk:
-  GuiControlGet, InstantUpdates
-  If ( InstantUpdates == 1 )
-    Gosub, Eval
+    GuiControlGet, InstantUpdates
+    If ( InstantUpdates == 1 )
+        Gosub, Eval
 Return
 
 InitVars:
-  ; Determine the proper name of the control
-  RichEdit20 := "RichEdit20A"
-  
-  /*
-    ; below is the version for a real unicode richedit control
-    ; but since it's a real pain working with that e.g.
-    ; keep the text unicode, but all rtf tags in ansi,
-    ; i decided to keep this control in ansi in any case,
-    ; thus sacrifycing the benefits of unicode
+    ; Determine the proper name of the control
+    RichEdit20 := "RichEdit20A"
     
-    RichEdit20 := "RichEdit20" ( A_IsUnicode ? "W" : "A" )
-  */
-
-  ; Set Dflt Values
-  _Ptr     := "Ptr"
-  _Str     := ( A_IsUnicode ? "W" : "A" ) "Str"
-  CodePage := A_IsUnicode ? 1200 : 0
-  
-  ; SETTEXTEX Structure 
-  VarSetCapacity(SETTEXTEX, 8, 0)        ; http://msdn.microsoft.com/en-us/library/bb787954(v=VS.85).aspx
-  NumPut(1, SETTEXTEX, 0, "Uint")        ; (dWord) FLAGS: ST_DEFAULT[=1]
-  NumPut(CodePage, SETTEXTEX, 4, "Uint") ; (uInt)  codepage
-
+    /*
+        ; below is the version for a real unicode richedit control
+        ; but since it's a real pain working with that e.g.
+        ; keep the text unicode, but all rtf tags in ansi,
+        ; i decided to keep this control in ansi in any case,
+        ; thus sacrifycing the benefits of unicode
+        
+        RichEdit20 := "RichEdit20" ( A_IsUnicode ? "W" : "A" )
+    */
+    
+    ; Set Dflt Values
+    global CodePage := A_IsUnicode ? 1200 : 0
+    
+    ; SETTEXTEX Structure
+    global SETTEXTEX
+    VarSetCapacity(SETTEXTEX, 8, 0)        ; http://msdn.microsoft.com/en-us/library/bb787954(v=VS.85).aspx
+    NumPut(1, SETTEXTEX, 0, "Uint")        ; (dWord) FLAGS: ST_DEFAULT[=1]
+    NumPut(CodePage, SETTEXTEX, 4, "Uint") ; (uInt)  codepage
 Return
 
-
 SetDemoText:
-  SRV     := "0.2.1" ; Version
-  colSets := 12
-  HayStack=
-  (LTrim Join
-    Welcome to simple RegExTester %SRV%. It's intended to be a very simple tool, yet power
-    full enough to easily visualize your RegExNeedles on your custom texts. To do this, si
-    mply paste in your text in the big box and enter your Regular Expression Needle above
-    . You will see your results instantly. Features of this tool:`n`n
-    `t- full regex syntax as it's available to AutoHotkey`n
-    `t- powerfull colorization including custom colors for named subpatters`n
-    `t- simple yet powerfull in its usage`n`n
-    This tool uses a stripped version of corrupt's libraries for RichEdit Controls. The fu
-    ll libraries and advanced usage samples may be found here:`n`n
-    `thttp://www.autohotkey.com/forum/viewtopic.php?p=123286#123286`n`n
-    Beware, the mentioned RTF library is stalled in a very early stage, and might not wor
-    k as expected. At present day it only uses the RichtEdit v2 Control, thus it cannot b
-    e run on systems lacking it, such as Windows 95.`n
-    `nHave fun!`ndR`n
-  )
-  ColorChooserText=
-  (Ltrim Join Comments
-    This is a Demonstration to show how a regex will be matched. To change that color, sim
-    ply select the text ( this app checks for keywords ) and click the customize color But
-    ton. \highlight1 This sentence demonstrates a complete Standard Match\highlight0 , whe
-    re no other subpatters have been defined. \par `n
-    Starting with version 0.1.8 subpatterns come into the game.`n
-    `t\highlight1\b\cf5 This \cf6 long \cf7 sentence \cf8 might \cf9 have \cf10 been \cf1
-    1 captured \cf12 by \cf13 following \cf14 pattern \cf3\b0\highlight0 .
-    `n    \f1\fs15 U)(\\w+\\b).*(\\w+\\b).*(\\w+\\b).*(\\w+\\b).*(\\w+\\b).*(\\w+\\b).*(
-    \\w+\\b).*(\\w+\\b).*(\\w+\\b) \f0\fs20 `n`n
-    As you see there are nine subpatters and aboves sentence is colored individually. Thes
-    e patterns would have been matched by the AHK RegEx parser as Match1, Match2 .. Match1
-    0. For now this app takes ten colors as a max. `n`n
-    This is \strike replaced text\strike0\b\cf4 how it would look like\b0\cf3 , when a re
-    placement took place.
-  )
-  AHK_VERSION := " ( AHK_L - Build " A_AhkVersion  ( A_IsUnicode ? "-Unicode " : "-ANSI " ) " )" 
-  RegExTypes := ( ShowMatch   := "Show Match" )
-          . "|" ( ShowReplace := "Show Replacement"   )
+    SRV     := "0.2.1" ; Version
+    colSets := 12
+    HayStack=
+    (LTrim Join
+        Welcome to simple RegExTester %SRV%. It's intended to be a very simple tool, yet power
+        full enough to easily visualize your RegExNeedles on your custom texts. To do this, si
+        mply paste in your text in the big box and enter your Regular Expression Needle above
+        . You will see your results instantly. Features of this tool:`n`n
+        `t- full regex syntax as it's available to AutoHotkey`n
+        `t- powerfull colorization including custom colors for named subpatters`n
+        `t- simple yet powerfull in its usage`n`n
+        This tool uses a stripped version of corrupt's libraries for RichEdit Controls. The fu
+        ll libraries and advanced usage samples may be found here:`n`n
+        `thttp://www.autohotkey.com/forum/viewtopic.php?p=123286#123286`n`n
+        Beware, the mentioned RTF library is stalled in a very early stage, and might not wor
+        k as expected. At present day it only uses the RichtEdit v2 Control, thus it cannot b
+        e run on systems lacking it, such as Windows 95.`n
+        `nHave fun!`ndR`n
+    )
+    ColorChooserText=
+    (Ltrim Join Comments
+        This is a Demonstration to show how a regex will be matched. To change that color, sim
+        ply select the text ( this app checks for keywords ) and click the customize color But
+        ton. \highlight1 This sentence demonstrates a complete Standard Match\highlight0 , whe
+        re no other subpatters have been defined. \par `n
+        Starting with version 0.1.8 subpatterns come into the game.`n
+        `t\highlight1\b\cf5 This \cf6 long \cf7 sentence \cf8 might \cf9 have \cf10 been \cf1
+        1 captured \cf12 by \cf13 following \cf14 pattern \cf3\b0\highlight0 .
+        `n    \f1\fs15 U)(\\w+\\b).*(\\w+\\b).*(\\w+\\b).*(\\w+\\b).*(\\w+\\b).*(\\w+\\b).*(
+        \\w+\\b).*(\\w+\\b).*(\\w+\\b) \f0\fs20 `n`n
+        As you see there are nine subpatters and aboves sentence is colored individually. Thes
+        e patterns would have been matched by the AHK RegEx parser as Match1, Match2 .. Match1
+        0. For now this app takes ten colors as a max. `n`n
+        This is \strike replaced text\strike0\b\cf4 how it would look like\b0\cf3 , when a re
+        placement took place.
+    )
+    AHK_VERSION := " ( AHK_L - Build " A_AhkVersion  ( A_IsUnicode ? "-Unicode " : "-ANSI " ) " )" 
+    RegExTypes := ( ShowMatch   := "Show Match" )
+            . "|" ( ShowReplace := "Show Replacement" )
 
 ColorReset:
-  cf0  := "\red255\green255\blue255;" ; cf0  default background
-  cf1  := "\red255\green255\blue164;" ; cf1  hilight matchall
-  cf2  := "\red128\green128\blue128;" ; cf2  default color
-  cf3  := "\red128\green0\blue128;"   ; cf3  replacement
-  cf4  := "\red255\green128\blue0;"   ; cf4  pattern1
-  cf5  := "\red128\green0\blue0;"     ; cf5  pattern2
-  cf6  := "\red0\green128\blue0;"     ; cf6  pattern3
-  cf7  := "\red0\green0\blue128;"     ; cf7  pattern4
-  cf8  := "\red255\green0\blue0;"     ; cf8  pattern5
-  cf9  := "\red0\green64\blue0;"      ; cf9  pattern6
-  cf10 := "\red0\green0\blue255;"     ; cf10 pattern7
-  cf11 := "\red255\green0\blue255;"   ; cf11 pattern8
-  cf12 := "\red128\green128\blue0;"   ; cf12 pattern9
-  cf13 := "\red0\green128\blue128;"   ; cf13 pattern10
+    cf0  := "\red255\green255\blue255;" ; cf0  default background
+    cf1  := "\red255\green255\blue164;" ; cf1  hilight matchall
+    cf2  := "\red128\green128\blue128;" ; cf2  default color
+    cf3  := "\red128\green0\blue128;"   ; cf3  replacement
+    cf4  := "\red255\green128\blue0;"   ; cf4  pattern1
+    cf5  := "\red128\green0\blue0;"     ; cf5  pattern2
+    cf6  := "\red0\green128\blue0;"     ; cf6  pattern3
+    cf7  := "\red0\green0\blue128;"     ; cf7  pattern4
+    cf8  := "\red255\green0\blue0;"     ; cf8  pattern5
+    cf9  := "\red0\green64\blue0;"      ; cf9  pattern6
+    cf10 := "\red0\green0\blue255;"     ; cf10 pattern7
+    cf11 := "\red255\green0\blue255;"   ; cf11 pattern8
+    cf12 := "\red128\green128\blue0;"   ; cf12 pattern9
+    cf13 := "\red0\green128\blue128;"   ; cf13 pattern10
 
 InitBaseRTF:
-  stdCol  := "{\colortbl" ; cf1
-           . cf0 cf1 cf1 cf2 cf3 cf4 cf5 cf6 cf7 cf8 cf9 cf10 cf11 cf12 cf13
-           . "}"
-  cusCol  := stdCol
-  preRTF  := "{\rtf1\ud\uc0{\fonttbl{\f0\fswiss\fprq2\fcharset0 Arial;\f1\fswiss\fprq2\fcharset0 Lucida Console;}}"
-           . cusCol
-           . "\viewkind4\pard\nowidctlpar\cf3\highlight0\f0\fs20"
-  postRTF := "\b0\f0\par}"
-  
-  If ( A_ThisLabel == "ColorReset" )  {
-    GuiControl, Disable, ColorResetBtn
-    GuiControl, Disable, SaveColorsBtn
-    SetRTF( HayStack )
-    SetRTF( ColorChooserText, 2 )
-  }
+    stdCol  := "{\colortbl" ; cf1
+            . cf0 cf1 cf1 cf2 cf3 cf4 cf5 cf6 cf7 cf8 cf9 cf10 cf11 cf12 cf13
+            . "}"
+    cusCol  := stdCol
+    preRTF  := "{\rtf1\ud\uc0{\fonttbl{\f0\fswiss\fprq2\fcharset0 Arial;\f1\fswiss\fprq2\fcharset0 Lucida Console;}}"
+            . cusCol
+            . "\viewkind4\pard\nowidctlpar\cf3\highlight0\f0\fs20"
+    postRTF := "\b0\f0\par}"
+    
+    If ( A_ThisLabel == "ColorReset" )  {
+        GuiControl, Disable, ColorResetBtn
+        GuiControl, Disable, SaveColorsBtn
+        SetRTF( HayStack, REdit )
+        SetRTF( ColorChooserText, REdit2 )
+    }
 return
 
 GuiSize:
@@ -246,84 +243,86 @@ Esc::
 ExitApp
 
 CustomColor:
-  If ( StrLen( Txt := RegExReplace( GetSelRTF(), "^\s*|\s*$" ) ) != 0 )
-  {
-    t := "This sentence might have been captured by following pattern", c := 0
-    if ( RegExMatch( Txt, "\QThis sentence demonstrates a complete Standard Match\E" ) )
-      c := 1
-    else if ( RegExMatch( txt, "how it would look like"  ) )
-      c := 3
-    else if ( InStr( t, txt ) ) {
-      Loop,Parse,t,%A_Space%
-      {
-        if ( RegExMatch( Txt, "\b" A_LoopField "\b" ) )
-        {
-          c := 3+A_Index
-          break
+    If ( StrLen( Txt := RegExReplace( GetSelRTF(), "^\s*|\s*$" ) ) != 0 )
+    {
+        t := "This sentence might have been captured by following pattern", c := 0
+        if ( RegExMatch( Txt, "\QThis sentence demonstrates a complete Standard Match\E" ) )
+            c := 1
+        else if ( RegExMatch( txt, "how it would look like"  ) )
+            c := 3
+        else if ( InStr( t, txt ) ) {
+            Loop,Parse,t,%A_Space%
+            {
+                if ( RegExMatch( Txt, "\b" A_LoopField "\b" ) )
+                {
+                    c := 3+A_Index
+                    break
+                }
+            }
         }
-      }
+        if ( c && RegExMatch( cf%c%, "\D+(\d+)\D+(\d+)\D+(\d+)", col ) ) {
+            Gui, +LastFound
+            if ( ( nc := GetColor( (col1<<16)+(col2<<8)+col3 , WinExist() ) ) != -1 )
+            {
+                cf%c% := "\red" nc & 255 "\green" ( nc >> 8 ) & 255 "\blue" ( nc >> 16 ) & 255 ";"
+                Gosub, InitBaseRTF
+                SetRTF( HayStack, REdit )
+                SetRTF( ColorChooserText, REdit2 )
+                GuiControl, Enable, ColorResetBtn
+                GuiControl, Enable, SaveColorsBtn
+            }
+        }
     }
-    if ( c && RegExMatch( cf%c%, "\D+(\d+)\D+(\d+)\D+(\d+)", col ) ) {
-      Gui, +LastFound
-      if ( ( nc := GetColor( (col1<<16)+(col2<<8)+col3 , WinExist() ) ) != -1 )
-      {
-        cf%c% := "\red" nc & 255 "\green" ( nc >> 8 ) & 255 "\blue" ( nc >> 16 ) & 255 ";"
-        Gosub, InitBaseRTF
-        SetRTF( HayStack ), SetRTF( ColorChooserText, 2 )
-        GuiControl, Enable, ColorResetBtn
-        GuiControl, Enable, SaveColorsBtn
-      }
-    }
-  }
 Return
 
 LoadColors:
-  FileSelectFile, FileName, 1, , , RegExTesterColorSet (*.col)
-  If ( FileName != "" )
-  {
-    ColorTable := ""
-    FileRead, ColorTable, % Filename
-    loop,Parse,ColorTable,`n,`r
-      if ( RegExMatch( A_LoopField, "(?P<Name>cf\w+\b)\s*\:=\s*""(?P<Value>[^""]+)""", Var ) )
-        %varName% := varValue
-    Gosub, InitBaseRTF
-    SetRTF( HayStack ), SetRTF( ColorChooserText, 2 )
-    GuiControl, Enable, ColorResetBtn
-  }
+    FileSelectFile, FileName, 1, , , RegExTesterColorSet (*.col)
+    If ( FileName != "" )
+    {
+        ColorTable := ""
+        FileRead, ColorTable, % Filename
+        loop,Parse,ColorTable,`n,`r
+        if ( RegExMatch( A_LoopField, "(?P<Name>cf\w+\b)\s*\:=\s*""(?P<Value>[^""]+)""", Var ) )
+            s%varName% := varValue
+        Gosub, InitBaseRTF
+        SetRTF( HayStack, REdit )
+        SetRTF( ColorChooserText, REdit2 )
+        GuiControl, Enable, ColorResetBtn
+    }
 Return
 
 SaveColors:
-  FileSelectFile, FileName, s16, RegExTesterColorSet.col, , RegExTesterColorSet (*.col)
-  If ( FileName != "" )
-  {
-    If ( FileExist( FileName ) )
-      FileDelete, % FileName
-    FileAppend,
-    (LTrim Join`n
-      cf1  := "%cf1%"  ; cf1  hilight matchall
-      cf3  := "%cf3%"  ; cf3  replacement
-      cf4  := "%cf4%"  ; cf4  pattern1
-      cf5  := "%cf5%"  ; cf5  pattern2
-      cf6  := "%cf6%"  ; cf6  pattern3
-      cf7  := "%cf7%"  ; cf7  pattern4
-      cf8  := "%cf8%"  ; cf8  pattern5
-      cf9  := "%cf9%"  ; cf9  pattern6
-      cf10 := "%cf10%" ; cf10 pattern7
-      cf11 := "%cf11%" ; cf11 pattern8
-      cf12 := "%cf12%" ; cf12 pattern9
-      cf13 := "%cf13%" ; cf13 pattern10
-    ), % FileName
-  }
+    FileSelectFile, FileName, s16, RegExTesterColorSet.col, , RegExTesterColorSet (*.col)
+    If ( FileName != "" )
+    {
+        If ( FileExist( FileName ) )
+            FileDelete, % FileName
+        FileAppend,
+        (LTrim Join`n
+            cf1  := "%cf1%"  ; cf1  hilight matchall
+            cf3  := "%cf3%"  ; cf3  replacement
+            cf4  := "%cf4%"  ; cf4  pattern1
+            cf5  := "%cf5%"  ; cf5  pattern2
+            cf6  := "%cf6%"  ; cf6  pattern3
+            cf7  := "%cf7%"  ; cf7  pattern4
+            cf8  := "%cf8%"  ; cf8  pattern5
+            cf9  := "%cf9%"  ; cf9  pattern6
+            cf10 := "%cf10%" ; cf10 pattern7
+            cf11 := "%cf11%" ; cf11 pattern8
+            cf12 := "%cf12%" ; cf12 pattern9
+            cf13 := "%cf13%" ; cf13 pattern10
+        ), % FileName
+    }
 Return
 
 ; adapted from http://www.autohotkey.com/forum/viewtopic.php?t=17230
 ; as compiled and written by majkinetor
 GetColor( c=0, hGui=0) { ; added in v0.1.7
     VarSetCapacity(CHOOSECOLOR,0x24,0), VarSetCapacity(CUSTOM,64,0)
-     ,NumPut(0x24,CHOOSECOLOR, 0),NumPut(hGui,CHOOSECOLOR, 4)
-     ,NumPut(((c&255)<<16)+(c&0xFF00)+((c>>16)&255),CHOOSECOLOR, 12)
-     ,NumPut(&CUSTOM,CHOOSECOLOR, 16), 
-     ,NumPut(0x00000103,CHOOSECOLOR, 20)
+        ,NumPut(0x24,CHOOSECOLOR, 0),NumPut(hGui,CHOOSECOLOR, 4)
+        ,NumPut(((c&255)<<16)+(c&0xFF00)+((c>>16)&255),CHOOSECOLOR, 12)
+        ,NumPut(&CUSTOM,CHOOSECOLOR, 16), 
+        ,NumPut(0x00000103,CHOOSECOLOR, 20)
     nRC := DllCall("comdlg32\ChooseColorA", str, CHOOSECOLOR)
     return (errorlevel <> 0) || (nRC = 0) ? -1 : NumGet(CHOOSECOLOR, 12) 
 }
@@ -388,7 +387,7 @@ RegExEval(){
         RegExErrorLevel := ErrorLevel
     SB_SetText( "RegEx: " ( RegExErrorLevel != 0 ? RegExErrorLevel : "OK." ) )
     
-    SetRTF( HayStack )
+    SetRTF( HayStack, REdit )
 }
 
 PrevIdx(obj, i) {
@@ -431,55 +430,59 @@ StrRep(str, pos, len, repStr) {
     return StrIns(StrDel(str, pos, len), repStr, pos)
 }
 
-GetSelRTF() { ; added in v 0.1.8
-    Global REdit2, _Ptr
+GetSelRTF( re ) { ; added in v 0.1.8
     VarSetCapacity(t, 8, 0)
-    DllCall("SendMessage", _Ptr, REdit2, _Ptr, 0x434, _Ptr, "0", _Ptr, &t)
-    VarSetCapacity(t, -1)
+    SendMessage(re, 0x434, 0, &t)
+    ; VarSetCapacity(t, -1)
+    
     tbl := NumGet(t, 4, "Int") - NumGet(t, 0, "Int")
     If (tbl < 1 )
         Return
+    
     VarSetCapacity(b, tbl, 0)
-    DllCall("SendMessage", _Ptr, REdit2, _Ptr, 0x43E, _Ptr, "0", _Ptr, &b)
+    SendMessage(re, 0x43E, 0, &b)
     VarSetCapacity(b, -1)
     return A_IsUnicode ? StrGet( &b, tbl, "CP0") : b
 }
 
-GetRTF( re = 1 ){ ; added in v0.1.7 / changed for multiple Ctrls in v0.1.8
-    Global CodePage, REdit, REdit2
-
+GetRTF( re ) {
     ; Get Haystack
     VarSetCapacity(t1, 8, 0)
     t2 := CodePage
     VarSetCapacity(t3, 20, 0)
     NumPut(0, t1, 0)
     NumPut(t2, t1, 4)
-    If (ts := DllCall("SendMessage", "UInt", REdit, "UInt", 0x45F, "UInt", &t1, "UInt", "0")) {
-        ts+=1
-        ts*=A_IsUnicode ? 2 : 1
+    If (ts := SendMessage(re, 0x45F, &t1)) {
+        ts := (ts+1) * (A_IsUnicode ? 2 : 1)
         NumPut(ts, t3, 0, "Int")
         NumPut(t2, t3, 8, "Int")
         VarSetCapacity(Haystack, ts + 1, 0)
-        DllCall("SendMessage", "UInt", re = 2 ? REdit2 : Redit , "UInt", 0x45E, "UInt", &t3, "UInt", &Haystack)
+        DllCall("SendMessage", "UInt", re, "UInt", 0x45E, "UInt", &t3, "UInt", &Haystack)
         VarSetCapacity(Haystack, -1)
     }
     return Haystack
 }
 
-SetRTF( Haystack, re = 1 ){ ; added in v0.1.7 / changed for multiple Ctrls in v0.1.8
-  Global preRTF, postRTF, _Ptr, _Str, SETTEXTEX, REdit, REdit2
-  
-  ; Do any neccessary translations
-  if ( A_IsUnicode )
-    StrPutVar(preRTF RegExReplace( HayStack, "\r\n|\r|\n", "\par`n" ) postRTF, rtfText, "CP0")
-  else 
-    rtfText := preRTF RegExReplace( HayStack, "\r\n|\r|\n", "\par`n" ) postRTF
-  ; Set Text
-  DllCall("SendMessage", _Ptr, re = 2 ? REdit2 : REdit , _Ptr, 0x461, _Ptr, &SETTEXTEX, _Str, rtfText )
-  Gui Show
+SendMessage( hwnd, msg, wParam = 0, lParam = 0 ) {
+    SendMessage, %msg%, %wParam%, %lParam%, , ahk_id %hwnd%
+    return ErrorLevel
+}
+
+SetRTF( Haystack, re ){
+    Global preRTF, postRTF
+
+    ; Do any neccessary translations
+    Haystack := preRTF RegExReplace( Haystack, "\r\n|\r|\n", "\par`n" ) postRTF
+    
+    if ( A_IsUnicode )
+        StrPutVar(Haystack, Haystack, "CP0")
+    
+    ; Set Text
+    SendMessage(re, 0x461, &SETTEXTEX, &Haystack )
+    Gui Show
 }
 
 StrPutVar(string, ByRef var, encoding){ ; added in v0.1.6
-    VarSetCapacity( var, StrPut(string, encoding) * ((encoding="utf-16"||encoding="cp1200") ? 2 : 1) )
+    VarSetCapacity( var, StrPut(string, encoding) * (encoding="utf-16"||encoding="cp1200" ? 2 : 1) )
     return StrPut(string, &var, encoding)
 }
