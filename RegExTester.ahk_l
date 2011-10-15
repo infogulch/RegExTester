@@ -29,7 +29,7 @@ AutoExecute:
     Gui,Add,Edit,x10 y+10 w600 vReplacement r2, Replacement
     Gui,Font
     Gui,Add,GroupBox,w200 r1, Regular Expression Method
-    Gui,Add,DDL,w180 xp+10 yp+20 vMethod gEval,% RegExReplace( RegExTypes, "\|", "||", any, 1 )
+    Gui,Add,DDL,w180 xp+10 yp+20 vMethod gEval,% RegExReplace( RegExTypes, "\|", "||", "", 1 )
     Gui,Add,GroupBox,w390 r1 yp-20 x220 vGroup2, Regular Expression Oprions
     Gui,Add,Text,xp+20 yp+20 w28, Start
     Gui,Font,s9 Bold cBlack,Lucida Console
@@ -41,10 +41,10 @@ AutoExecute:
     Gui,Font
     Gui,Add,Text,x+10 yp+3 w78, PCRE Options
     Gui,Font,s9 cBlack,Lucida Console
-    Gui,Add,Edit, x+0 yp-3 hp+5 w75 vOptions gInstantChk, % "i"
+    Gui,Add,Edit, x+0 yp-3 hp+5 w75 vOptions gInstantChk, i
     Gui,Font
-    Gui,Add,Tab2,w600 x10 y+20 h420 +0x2C2 vTabs hwndhTabs, RegEx|Colors|Advanced
-    Gui,Tab,RegEx
+    Gui,Add,Tab2,w600 x10 y+20 h420 +0x2C2 vTabs hwndhTabs, Haystack|Colors|Advanced
+    Gui,Tab,Haystack
     Gui, Add, Picture, x+2 y+2 vrPic HwndhWnd
     Gui,Tab,Colors
     Gui, Add, Picture, x+2 y+2 w30 h365 vrRO HwndhRO
@@ -56,7 +56,7 @@ AutoExecute:
     Gui, Add, CheckBox, x+10 y+10 Checked vShowReplacedText, Show the replaced text as striked through
     Gui, Add, CheckBox, xp y+10 Checked vAllowHaystackReplace, Allow RegExReplace to update the Haystack
     Gui, Add, CheckBox, xp y+10 vInstantUpdates, % "Update instantly the Haystack with your Regex`n"
-                                                . "This might result in a nonworking script. Use carefully!"
+                                                 . "This might result in a nonworking script. Use carefully!"
     Gui,Tab
     Gui,Add,StatusBar,+0x100
     Gui, Show, Hide, % "Simple RegExTester v" SRV AHK_VERSION
@@ -73,20 +73,28 @@ AutoExecute:
     global REdit2 := DllCall("CreateWindowEx", "ptr", 0x200, "str", RichEdit20, "str", RichEdit20, "ptr", ControlStyle ; 0x549371C4
                             ,"int", 10, "int", 40, "int", 530, "int", 410, "ptr", hRO, "ptr", 0, "ptr", hInstance, "ptr", 0 )
     ; EM_LIMITTEXT Message
-    DllCall("SendMessage", "ptr", REdit, "ptr", 0x435, "ptr", 0, "ptr", 0x7fffffff )
-    DllCall("SendMessage", "ptr", REdit2, "ptr", 0x435, "ptr", 0, "ptr", 0x7fffffff )
+    SendMessage(REdit, 0x435, 0, 0x7fffffff )
+    SendMessage(REdit2, 0x435, 0, 0x7fffffff )
     ; EM_SETTARGETDEVICE - wordwrap
-    DllCall("SendMessage", "ptr", REdit, "ptr", 0x448, "ptr", 0, "ptr", 0)
-    DllCall("SendMessage", "ptr", REdit2, "ptr", 0x448, "ptr", 0, "ptr", 0)
+    SendMessage( REdit, 0x448)
+    SendMessage( REdit2, 0x448)
+    
     SetRTF( HayStack, REdit )
     SetRTF( ColorChooserText, REdit2 )
     
     ControlMove,,20,197,567,405,ahk_id %REdit%
     ControlMove,,20,197,567,370,ahk_id %REdit2%
+    GoSub Eval
+return
 
+InstantChk:
+    GuiControlGet, InstantUpdates
+    if !InstantUpdates
+        return
 Eval:
+    msgbox %A_ThiLabel%
     ; Select Result Tab
-    DllCall("SendMessage", "ptr", hTabs, "ptr", 0x1330, "ptr", 0, "ptr", 0)
+    SendMessage(hTabs, 0x1330)
     Gui,Submit,NoHide
     
     if ( Method == ShowReplace )
@@ -94,30 +102,18 @@ Eval:
     else
         Gui,Font,s9 ca0a0a0, Lucida Console 
     GuiControl,Font,Replacement
+    
     if ( StartHaystack == "" || AllowHaystackReplace == 1 )
-        StartHaystack := GetRTF()
+        StartHaystack := GetRTF( REdit )
     RegExEval()
-Return
-
-InstantChk:
-    GuiControlGet, InstantUpdates
-    If ( InstantUpdates == 1 )
-        Gosub, Eval
-Return
+return
 
 InitVars:
-    ; Determine the proper name of the control
-    RichEdit20 := "RichEdit20A"
+    ; below is the version for a real unicode richedit control
+    ; but since it's a real pain working with that e.g.
+    ; keep the text unicode, but all rtf tags in ansi,
     
-    /*
-        ; below is the version for a real unicode richedit control
-        ; but since it's a real pain working with that e.g.
-        ; keep the text unicode, but all rtf tags in ansi,
-        ; i decided to keep this control in ansi in any case,
-        ; thus sacrifycing the benefits of unicode
-        
-        RichEdit20 := "RichEdit20" ( A_IsUnicode ? "W" : "A" )
-    */
+    RichEdit20 := "RichEdit20" ( A_IsUnicode ? "W" : "A" )
     
     ; Set Dflt Values
     global CodePage := A_IsUnicode ? 1200 : 0
@@ -127,7 +123,7 @@ InitVars:
     VarSetCapacity(SETTEXTEX, 8, 0)        ; http://msdn.microsoft.com/en-us/library/bb787954(v=VS.85).aspx
     NumPut(1, SETTEXTEX, 0, "Uint")        ; (dWord) FLAGS: ST_DEFAULT[=1]
     NumPut(CodePage, SETTEXTEX, 4, "Uint") ; (uInt)  codepage
-Return
+return
 
 SetDemoText:
     SRV     := "0.2.1" ; Version
@@ -187,16 +183,14 @@ ColorReset:
     cf13 := "\red0\green128\blue128;"   ; cf13 pattern10
 
 InitBaseRTF:
-    stdCol  := "{\colortbl" ; cf1
-            . cf0 cf1 cf1 cf2 cf3 cf4 cf5 cf6 cf7 cf8 cf9 cf10 cf11 cf12 cf13
-            . "}"
+    stdCol  := "{\colortbl" cf0 cf1 cf1 cf2 cf3 cf4 cf5 cf6 cf7 cf8 cf9 cf10 cf11 cf12 cf13 "}"
     cusCol  := stdCol
-    preRTF  := "{\rtf1\ud\uc0{\fonttbl{\f0\fswiss\fprq2\fcharset0 Arial;\f1\fswiss\fprq2\fcharset0 Lucida Console;}}"
+    preRTF  := "{\" (A_IsUnicode ? "u" : "") "rtf1\ud\uc0{\fonttbl{\f0\fswiss\fprq2\fcharset0 Arial;\f1\fswiss\fprq2\fcharset0 Lucida Console;}}"
             . cusCol
             . "\viewkind4\pard\nowidctlpar\cf3\highlight0\f0\fs20"
     postRTF := "\b0\f0\par}"
     
-    If ( A_ThisLabel == "ColorReset" )  {
+    if ( A_ThisLabel == "ColorReset" )  {
         GuiControl, Disable, ColorResetBtn
         GuiControl, Disable, SaveColorsBtn
         SetRTF( HayStack, REdit )
@@ -232,7 +226,7 @@ GuiSize:
         GuiControl, Move, rPic, % "w" TabsW-30 " h" TabsH-10
         GuiControl, Move, rRO, % "w" TabsW-30 " h" TabsH-50
     }
-Return
+return
 
 GuiEscape:
 GuiClose:
@@ -243,7 +237,7 @@ Esc::
 ExitApp
 
 CustomColor:
-    If ( StrLen( Txt := RegExReplace( GetSelRTF(), "^\s*|\s*$" ) ) != 0 )
+    if ( StrLen( Txt := RegExReplace( GetSelRTF(REdit), "^\s*|\s*$" ) ) != 0 )
     {
         t := "This sentence might have been captured by following pattern", c := 0
         if ( RegExMatch( Txt, "\QThis sentence demonstrates a complete Standard Match\E" ) )
@@ -273,11 +267,11 @@ CustomColor:
             }
         }
     }
-Return
+return
 
 LoadColors:
     FileSelectFile, FileName, 1, , , RegExTesterColorSet (*.col)
-    If ( FileName != "" )
+    if ( FileName != "" )
     {
         ColorTable := ""
         FileRead, ColorTable, % Filename
@@ -289,13 +283,13 @@ LoadColors:
         SetRTF( ColorChooserText, REdit2 )
         GuiControl, Enable, ColorResetBtn
     }
-Return
+return
 
 SaveColors:
     FileSelectFile, FileName, s16, RegExTesterColorSet.col, , RegExTesterColorSet (*.col)
-    If ( FileName != "" )
+    if ( FileName != "" )
     {
-        If ( FileExist( FileName ) )
+        if ( FileExist( FileName ) )
             FileDelete, % FileName
         FileAppend,
         (LTrim Join`n
@@ -313,7 +307,7 @@ SaveColors:
             cf13 := "%cf13%" ; cf13 pattern10
         ), % FileName
     }
-Return
+return
 
 ; adapted from http://www.autohotkey.com/forum/viewtopic.php?t=17230
 ; as compiled and written by majkinetor
@@ -334,14 +328,16 @@ RegExEval(){
     static hwndEdit, pSFW, pSW, bkpSFW, bkpSW
 
     Options := "O" RegExReplace( Options, "i)[^a-z``]|P|O" ) ")"
-    HayStack :=  AllowHaystackReplace ? GetRTF() : StartHaystack
+    HayStack :=  AllowHaystackReplace ? GetRTF( REdit ) : StartHaystack
     Needle := RegExReplace( Needle, "^[^\)]*\)" ) ; remove user-defined options
     RegExNeedle := Options Needle
     
     if !StrLen( Needle )
         return
     
-    p := 0
+    msgbox % "haystack before:`n" haystack
+    msgbox % "needle:`n" regexneedle
+    
     matches := 0
     while p := RegExMatch( HayStack, RegExNeedle, Match, p ? p+add : StartPos )
     {
@@ -351,6 +347,8 @@ RegExEval(){
         
         matches++
         add := 0
+        
+        msgbox % "matches:`n" lson(matches)
         
         if (Method == ShowReplace && RegExErrorLevel == 0 && (ReplaceCount < 0 || ReplaceCount <= matches) ) {
             replace := FormatReplacement(match, replacement)
@@ -369,23 +367,26 @@ RegExEval(){
         else if ( Method == ShowMatch && RegExErrorLevel == 0 ) {
             add += Match.len(0)
             inserts := [] ;list of insert strings because they could be nested
-            inserts[Match.pos(0)] := "\b0\cf3 "
-            inserts[Match.pos(0)+Match.len(0)] := "\highlight0 "
+            inserts[Match.pos(0)] := "\b0\cf3"
+            inserts[Match.pos(0)+Match.len(0)] := "\highlight0"
             loop % Match.count() {
                 pos1 := Match.pos(A_Index)
                 pos2 := Match.pos(A_Index)+Match.len(A_Index)
                 if !inserts.HasKey(pos2) ; section should end with whatever was before it
                     inserts[pos2] := inserts[PrevIdx(inserts,pos2)]
-                inserts[pos1] .= "\b\cf" A_Index+3 " "
+                inserts[pos1] .= "\b\cf" A_Index+3
             }
-            inserts[Match.pos(0)] := "\highlight1 " SubStr(inserts[Match.pos(0)], 8)
+            inserts[Match.pos(0)] := "\highlight1" SubStr(inserts[Match.pos(0)], 8)
+            msgbox % lson(inserts)
             for pos, ins in inserts
-                Haystack := StrIns(HayStack, pos+add, ins), add += StrLen(ins)
+                Haystack := StrIns(HayStack, pos+add, ins " "), add += StrLen(ins)
         }
     }
     if (RegExErrorLevel == "")
         RegExErrorLevel := ErrorLevel
     SB_SetText( "RegEx: " ( RegExErrorLevel != 0 ? RegExErrorLevel : "OK." ) )
+    
+    msgbox % "haystack after: p: " p "`n" HayStack
     
     SetRTF( HayStack, REdit )
 }
@@ -430,19 +431,19 @@ StrRep(str, pos, len, repStr) {
     return StrIns(StrDel(str, pos, len), repStr, pos)
 }
 
-GetSelRTF( re ) { ; added in v 0.1.8
+GetSelRTF( re ) {
     VarSetCapacity(t, 8, 0)
     SendMessage(re, 0x434, 0, &t)
     ; VarSetCapacity(t, -1)
     
     tbl := NumGet(t, 4, "Int") - NumGet(t, 0, "Int")
-    If (tbl < 1 )
-        Return
+    if (tbl < 1 )
+        return
     
     VarSetCapacity(b, tbl, 0)
     SendMessage(re, 0x43E, 0, &b)
     VarSetCapacity(b, -1)
-    return A_IsUnicode ? StrGet( &b, tbl, "CP0") : b
+    return StrGet( &b, tbl, A_IsUnicode ? "UTF-8" : "CP0")
 }
 
 GetRTF( re ) {
@@ -452,20 +453,15 @@ GetRTF( re ) {
     VarSetCapacity(t3, 20, 0)
     NumPut(0, t1, 0)
     NumPut(t2, t1, 4)
-    If (ts := SendMessage(re, 0x45F, &t1)) {
+    if (ts := SendMessage(re, 0x45F, &t1)) {
         ts := (ts+1) * (A_IsUnicode ? 2 : 1)
         NumPut(ts, t3, 0, "Int")
         NumPut(t2, t3, 8, "Int")
         VarSetCapacity(Haystack, ts + 1, 0)
-        DllCall("SendMessage", "UInt", re, "UInt", 0x45E, "UInt", &t3, "UInt", &Haystack)
+        SendMessage(re, 0x45E, &t3, &Haystack)
         VarSetCapacity(Haystack, -1)
     }
     return Haystack
-}
-
-SendMessage( hwnd, msg, wParam = 0, lParam = 0 ) {
-    SendMessage, %msg%, %wParam%, %lParam%, , ahk_id %hwnd%
-    return ErrorLevel
 }
 
 SetRTF( Haystack, re ){
@@ -475,7 +471,7 @@ SetRTF( Haystack, re ){
     Haystack := preRTF RegExReplace( Haystack, "\r\n|\r|\n", "\par`n" ) postRTF
     
     if ( A_IsUnicode )
-        StrPutVar(Haystack, Haystack, "CP0")
+        StrPutVar(Haystack, Haystack, "UTF-8")
     
     ; Set Text
     SendMessage(re, 0x461, &SETTEXTEX, &Haystack )
@@ -485,4 +481,9 @@ SetRTF( Haystack, re ){
 StrPutVar(string, ByRef var, encoding){ ; added in v0.1.6
     VarSetCapacity( var, StrPut(string, encoding) * (encoding="utf-16"||encoding="cp1200" ? 2 : 1) )
     return StrPut(string, &var, encoding)
+}
+
+SendMessage( hwnd, msg, wParam = 0, lParam = 0 ) {
+    SendMessage, %msg%, %wParam%, %lParam%, , ahk_id %hwnd%
+    return ErrorLevel
 }
