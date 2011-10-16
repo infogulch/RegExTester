@@ -95,9 +95,8 @@ return
 
 InstantChk:
     GuiControlGet, InstantUpdates
-    if !InstantUpdates
-        return
-    Gosub, Eval
+    if InstantUpdates
+        Gosub, Eval
 Return
 
 ;evaluates the regular expression
@@ -440,7 +439,7 @@ FixCase(case, str) {
 }
 
 StrDel(str, pos, len) {
-    return SubStr(str, 1, pos-1) SubStr(str, pos+len+1)
+    return SubStr(str, 1, pos-1) SubStr(str, pos+len)
 }
 
 ;inserts a string in front of the character at the given position
