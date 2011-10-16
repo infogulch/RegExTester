@@ -60,7 +60,7 @@ AutoExecute:
     Gui, Add, Button, h30 w100 yp x+5 vLoadColorsBtn gLoadColors, Load colors
     Gui,Tab,Advanced
     Gui, Add, CheckBox, x+10 y+10 Checked vShowReplacedText, Show the replaced text as striked through
-    Gui, Add, CheckBox, xp y+10 Checked vAllowHaystackReplace, Allow RegExReplace to update the Haystack
+    Gui, Add, CheckBox, xp y+10 vAllowHaystackReplace, Allow RegExReplace to update the Haystack
     Gui, Add, CheckBox, xp y+10 vInstantUpdates, % "Update instantly the Haystack with your Regex`n"
                                                  . "This might result in a nonworking script. Use carefully!"
     Gui,Tab
@@ -115,7 +115,6 @@ Eval:
         StartHaystack := GetRTF( REdit )
     RegExEval()
 return
-
 
 ;initialize variables to be used with the RichEdit control
 InitVars:
@@ -372,7 +371,7 @@ RegExEval(){
             replace := FormatReplacement(match, replacement)
             
             ;append replacement behind match
-            HayStack := StrIns(HayStack, Match.pos() + Match.len(), replace) 
+            HayStack := StrIns(HayStack, Match.pos() + Match.len() + 1, replace) 
             add += StrLen(replace)
             
             ; strike-out/remove replaced text
@@ -441,7 +440,7 @@ FixCase(case, str) {
 }
 
 StrDel(str, pos, len) {
-    return SubStr(str, 1, pos-1) SubStr(str, pos+len)
+    return SubStr(str, 1, pos-1) SubStr(str, pos+len+1)
 }
 
 ;inserts a string in front of the character at the given position
@@ -450,7 +449,7 @@ StrIns(str, pos, insStr) {
 }
 
 StrRep(str, pos, len, repStr) {
-    return StrIns(StrDel(str, pos, len), repStr, pos)
+    return StrIns(StrDel(str, pos, len), pos, repStr)
 }
 
 ;obtain the current selection in the RichEdit control
