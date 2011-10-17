@@ -356,52 +356,60 @@ RegExEval(){
     if (Needle == "")
         return
     
+    ins := [] ;list of insert strings. key: position, value: string to be inserted
+    del := [] ;list of delete positions. key: start pos, value: length to be deleted
+    
     matches := 0
-    while p := RegExMatch( HayStack, RegExNeedle, Match, p ? p+add : StartPos ) ;loop through each match of the regular expression
+    while p := RegExMatch( HayStack, RegExNeedle, Match, p ? p+Match.len()+1 : StartPos ) ;loop through each match of the regular expression
     {
         if (A_Index == 1)
             if (RegExErrorLevel := ErrorLevel)
                 break
         
-        matches++
-        add := 0
-        
-        if (Method = ShowReplace && RegExErrorLevel == 0 && (ReplaceCount < 0 || ReplaceCount <= matches) ) {
-            replace := FormatReplacement(match, replacement)
-            
-            ;append replacement behind match
-            HayStack := StrIns(HayStack, Match.pos() + Match.len() + 1, replace) 
-            add += StrLen(replace)
-            
-            ; strike-out/remove replaced text
+        if (Method = ShowReplace && (ReplaceCount < 0 || ReplaceCount <= ++matches) ) {
+            pos1 := Match.pos()
+            pos2 := Match.pos()+Match.len()+1
+            ins[pos2] := "\highlight1 " FormatReplacement(match, replacement) "\highlight0"
+
             if ShowReplacedText
-                HayStack := StrRep(HayStack, Match.pos(), Match.len(), "\strike " Match.value() "\strike0 ")
-                , add += 15 + Match.len()
+                ins[pos1] .= "\strike"
+                , ins[pos2] := "\strike0" ins[pos2]
             else
-                HayStack := StrDel(HayStack, Match.pos(), Match.len())
+                del[pos1] := Match.len()
         }
-        else if ( Method = ShowMatch && RegExErrorLevel == 0 ) {
-            inserts := [] ;list of insert strings because they could be nested
-            inserts[Match.pos()] := "\b0\cf3"
-            inserts[Match.pos()+Match.len()] := "\b0\cf3\highlight0"
+        else if ( Method = ShowMatch ) {
+            ins[Match.pos()] .= "\highlight1"
+            ins[Match.pos()+Match.len()+1] := "\b0\cf3\highlight0"
             loop % Match.count() { ; loop through all subpatterns, even if they didn't match
-                if !pos1 := Match.pos(A_Index)
+                pos1 := Match.pos(A_Index)
+                pos2 := Match.pos(A_Index)+Match.len(A_Index)+1
+                if !pos1
                     continue
-                pos2 := Match.pos(A_Index)+Match.len(A_Index)
-                if !inserts.HasKey(pos2) ; section should end with whatever was before it
-                    inserts[pos2] := inserts[PrevIdx(inserts,pos2)]
-                inserts[pos1] .= "\b\cf" A_Index+3
+                ins[pos1] .= "\b\cf" A_Index+3
+                ins[pos2] := "\b0\cf3" ins[pos2]
             }
-            inserts[Match.pos()] := "\highlight1" SubStr(inserts[Match.pos()], 8)
-            for pos, ins in inserts
-                Haystack := StrIns(HayStack, pos+add, ins " "), add += StrLen(ins)+1
-            add += Match.len()
         }
     }
     if (RegExErrorLevel == "")
         RegExErrorLevel := ErrorLevel
     
     SB_SetText( "RegEx: " ( RegExErrorLevel != 0 ? RegExErrorLevel : "OK." ) )
+    
+    add := 0 ;cumulative sum of length changes to original haystack
+    loop % StrLen(HayStack) { 
+        ;here, A_Index is the index of the *original* haystack
+        ;A_Index+add represents the same character position in the modified haystack
+        
+        if ins.HasKey(A_Index)
+            HayStack := StrIns(Haystack, A_Index+add, ins[A_Index] " ")
+            , add += StrLen(ins[A_Index])+1
+        if del.HasKey(A_Index)
+            Haystack := StrDel(Haystack, A_Index+add, del[A_Index])
+            , add -= del[A_Index]
+        else if InStr("{}\", SubStr(haystack, A_Index+add, 1))
+            Haystack := StrIns(HayStack, A_Index+add, "\")
+            , add++
+    }
     
     SetRTF( HayStack, REdit )
 }
