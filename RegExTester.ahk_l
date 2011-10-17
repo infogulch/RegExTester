@@ -71,7 +71,8 @@ AutoExecute:
     ; Load RichEdit2 DLL
     hInstance := DllCall("LoadLibrary", "str", "riched20.dll")
     
-    ControlStyle := 0x50000000 | 0x200000 | 0x4
+    ;WS_CHILD and WS_VISIBLE=0x50000000, WS_VSCROLL=0x200000, ES_WANTRETURN=0x1000, ES_WANTRETURN=0x4, 
+    ControlStyle := 0x50000000 | 0x200000 | 0x1000 | 0x4
     
     ; Create Control
     global REdit := DllCall("CreateWindowEx", "ptr", 0x200, "str", RichEdit20, "str", RichEdit20, "ptr", ControlStyle ; 0x549371C4
@@ -368,8 +369,8 @@ RegExEval(){
         
         if (Method = ShowReplace && (ReplaceCount < 0 || ReplaceCount <= ++matches) ) {
             pos1 := Match.pos()
-            pos2 := Match.pos()+Match.len()+1
-            ins[pos2] := "\highlight1 " FormatReplacement(match, replacement) "\highlight0"
+            pos2 := Match.pos()+Match.len()
+            ins[pos2] := "\b\cf4 " FormatReplacement(match, replacement) "\b0\cf3"
 
             if ShowReplacedText
                 ins[pos1] .= "\strike"
@@ -379,10 +380,10 @@ RegExEval(){
         }
         else if ( Method = ShowMatch ) {
             ins[Match.pos()] .= "\highlight1"
-            ins[Match.pos()+Match.len()+1] := "\b0\cf3\highlight0"
+            ins[Match.pos()+Match.len()] := "\b0\cf3\highlight0"
             loop % Match.count() { ; loop through all subpatterns, even if they didn't match
                 pos1 := Match.pos(A_Index)
-                pos2 := Match.pos(A_Index)+Match.len(A_Index)+1
+                pos2 := Match.pos(A_Index)+Match.len(A_Index)
                 if !pos1
                     continue
                 ins[pos1] .= "\b\cf" A_Index+3
@@ -395,6 +396,7 @@ RegExEval(){
     
     SB_SetText( "RegEx: " ( RegExErrorLevel != 0 ? RegExErrorLevel : "OK." ) )
     
+    orig_haystack := haystack
     add := 0 ;cumulative sum of length changes to original haystack
     loop % StrLen(HayStack) { 
         ;here, A_Index is the index of the *original* haystack
@@ -406,7 +408,7 @@ RegExEval(){
         if del.HasKey(A_Index)
             Haystack := StrDel(Haystack, A_Index+add, del[A_Index])
             , add -= del[A_Index]
-        else if InStr("{}\", SubStr(haystack, A_Index+add, 1))
+        if InStr("{}\", SubStr(orig_haystack, A_Index, 1))
             Haystack := StrIns(HayStack, A_Index+add, "\")
             , add++
     }
